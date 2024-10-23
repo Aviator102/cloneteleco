@@ -1,11 +1,11 @@
 /*!
 
 =========================================================
-* Black Dashboard React v1.2.2
+* Black Dashboard React v1.2.1
 =========================================================
-
+ 
 * Product Page: https://www.creative-tim.com/product/black-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
+* Copyright 2022 Creative Tim (https://www.creative-tim.com)
 * Licensed under MIT (https://github.com/creativetimofficial/black-dashboard-react/blob/master/LICENSE.md)
 
 * Coded by Creative Tim
@@ -16,7 +16,13 @@
 
 */
 import React from "react";
-import { Route, Routes, Navigate, useLocation } from "react-router-dom";
+import {
+  Route,
+  Switch,
+  Redirect,
+  useLocation,
+  useHistory
+} from "react-router-dom";
 // javascript plugin used to create scrollbars on windows
 import PerfectScrollbar from "perfect-scrollbar";
 
@@ -28,14 +34,16 @@ import FixedPlugin from "components/FixedPlugin/FixedPlugin.js";
 
 import routes from "routes.js";
 
-import logo from "assets/img/react-logo.png";
+import logo from "assets/img/black_icon_transparent_background.png";
 import { BackgroundColorContext } from "contexts/BackgroundColorContext";
+import { User } from "backend-sdk/user.sdk";
 
 var ps;
 
 function Admin(props) {
   const location = useLocation();
   const mainPanelRef = React.useRef(null);
+  const history = useHistory();
   const [sidebarOpened, setsidebarOpened] = React.useState(
     document.documentElement.className.indexOf("nav-open") !== -1
   );
@@ -44,7 +52,7 @@ function Admin(props) {
       document.documentElement.className += " perfect-scrollbar-on";
       document.documentElement.classList.remove("perfect-scrollbar-off");
       ps = new PerfectScrollbar(mainPanelRef.current, {
-        suppressScrollX: true,
+        suppressScrollX: true
       });
       let tables = document.querySelectorAll(".table-responsive");
       for (let i = 0; i < tables.length; i++) {
@@ -78,18 +86,22 @@ function Admin(props) {
     document.documentElement.classList.toggle("nav-open");
     setsidebarOpened(!sidebarOpened);
   };
-  const getRoutes = (routes) => {
+  const getRoutes = routes => {
     return routes.map((prop, key) => {
       if (prop.layout === "/admin") {
         return (
-          <Route path={prop.path} element={prop.component} key={key} exact />
+          <Route
+            path={prop.layout + prop.path}
+            component={prop.component}
+            key={key}
+          />
         );
       } else {
         return null;
       }
     });
   };
-  const getBrandText = (path) => {
+  const getBrandText = path => {
     for (let i = 0; i < routes.length; i++) {
       if (location.pathname.indexOf(routes[i].layout + routes[i].path) !== -1) {
         return routes[i].name;
@@ -105,9 +117,9 @@ function Admin(props) {
             <Sidebar
               routes={routes}
               logo={{
-                outterLink: "https://www.creative-tim.com/",
-                text: "Creative Tim",
-                imgSrc: logo,
+                outterLink: "https://instragram.com/trader.teles",
+                text: "DASHBOARD AVIATOR",
+                imgSrc: logo
               }}
               toggleSidebar={toggleSidebar}
             />
@@ -117,17 +129,12 @@ function Admin(props) {
                 toggleSidebar={toggleSidebar}
                 sidebarOpened={sidebarOpened}
               />
-              <Routes>
+              <Switch>
                 {getRoutes(routes)}
-                <Route
-                  path="/"
-                  element={<Navigate to="/admin/dashboard" replace />}
-                />
-              </Routes>
-              {
-                // we don't want the Footer to be rendered on map page
-                location.pathname === "/admin/maps" ? null : <Footer fluid />
-              }
+                <Redirect from="*" to="/auth/login" />
+              </Switch>
+              {// we don't want the Footer to be rendered on map page
+              location.pathname === "/admin/maps" ? null : <Footer fluid />}
             </div>
           </div>
           <FixedPlugin bgColor={color} handleBgClick={changeColor} />
